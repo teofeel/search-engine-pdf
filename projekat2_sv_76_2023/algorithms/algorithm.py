@@ -9,48 +9,56 @@ def search_files(files, text, results):
     num_of_result = 0
 
     for file in files:
-        if boyer_moore.find(files[file]['content'], text) == -1: continue
+        words = []
+        for word in text:
+            if boyer_moore.find(files[file]['content'], word) != -1: 
+                words.append(word)
 
-        num_of_result = extract_result_from_file(files[file], text, results, num_of_result)
+
+        num_of_result = extract_result_from_file(files[file], words, results, num_of_result)
 
 
 def extract_result_from_file(file, text, results, num_of_result):
-    pattern = re.compile(re.escape(text), re.IGNORECASE)
-    matches = list(pattern.finditer(file['content']))
+    if len(text)==0:return num_of_result
 
-    for match in matches:
-        color_start = "\033[31m"
-        color_end = "\033[0m"
+    for word in text:
+        pattern = re.compile(re.escape(word), re.IGNORECASE)
+        matches = list(pattern.finditer(file['content']))
 
-        start = max(match.start()-5, 0)
-        end = min(match.end()+10, len(file['content']))
-        
-        snippet = file['content'][start:end]
-        colored_content = pattern.sub(f"{color_start}{text}{color_end}", snippet)
-        
-        num_of_result+=1
+        for match in matches:
+            color_start = "\033[31m"
+            color_end = "\033[0m"
 
-        results.append({
-            'num_result':num_of_result,
-            'page_number':file['page_number'],
-            'content': colored_content,
-            'original_search': text,
-            'rang': len(matches)
-        })
+            start = max(match.start()-5, 0)
+            end = min(match.end()+10, len(file['content']))
 
-    
-    return num_of_result
+            snippet = file['content'][start:end]
+            colored_content = pattern.sub(f"{color_start}{word}{color_end}", snippet)
+
+            num_of_result+=1
+
+            results.append({
+                'num_result':num_of_result,
+                'page_number':file['page_number'],
+                'content': colored_content,
+                'original_search': word,
+                'rang': len(matches)
+            })
+
+        return num_of_result
 
 def parse_text(text):
     if text[0]=='"' and text[len(text)-1]=='"':
-        print(text[1:len(text)-1])
         return text[1:len(text)-1]
     
-    return text
+    return text.split(' ')
 
 def get_results(files, text):
     text = parse_text(text)
     
+    if not isinstance(text, (list,tuple)):
+        text = [text]
+        
     results = []
     search_files(files,text,results)
 
