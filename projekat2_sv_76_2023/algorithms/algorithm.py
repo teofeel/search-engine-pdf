@@ -18,6 +18,7 @@ def search_files(files, text, results):
 
 
         num_of_result = extract_result_from_file(files[file], words, text, results, num_of_result)
+        generate_page_rank(files[file], text)
 
 
 def extract_result_from_file(file, text, original_text, results, num_of_result):
@@ -26,7 +27,6 @@ def extract_result_from_file(file, text, original_text, results, num_of_result):
         pattern = re.compile(re.escape(word), re.IGNORECASE)
         matches = list(pattern.finditer(file['content']))
 
-        print(len(matches), file['page_number'])
         for match in matches:
             color_start = "\033[31m"
             color_end = "\033[0m"
@@ -36,20 +36,21 @@ def extract_result_from_file(file, text, original_text, results, num_of_result):
                 if file['content'][i]=='.' or file['content'][i]=='\n':
                     break
                 i-=1
-            start = max(i, 0)
+            start = max(i+1, 0)
 
             i = match.end()
             while i<len(file['content'])-1:
                 if file['content'][i]=='.'  or file['content'][i]=='\n':
                     break
                 i+=1
-            end = min(i, len(file['content']))
+            end = min(i-1, len(file['content']))
 
             snippet = file['content'][start:end]
+            colored_snippet = snippet
 
             for w in text:
                 pattern_temp = re.compile(re.escape(w), re.IGNORECASE)
-                snippet = pattern_temp.sub(f"{color_start}{w}{color_end}", snippet) 
+                colored_snippet = pattern_temp.sub(f"{color_start}{w}{color_end}", colored_snippet) 
 
 
             num_of_result+=1
@@ -57,9 +58,9 @@ def extract_result_from_file(file, text, original_text, results, num_of_result):
             results.append({
                 'num_result':num_of_result,
                 'page_number':file['page_number'],
-                'content': snippet,
+                'content': colored_snippet,
                 'original_search': word,
-                'rang': generate_rang(file, text, original_text) #len(matches) 
+                'rang': generate_rang_result(file, text, snippet) 
             })
 
     return num_of_result
@@ -81,15 +82,19 @@ def get_results(files, text):
     search_files(files,text,results)
 
     sort(results)
-    print('#'*20)
 
     for res in results:
         print('#'*10)
         print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
+def generate_page_rank(file, original_text):
+    page_rang = 0
+    for w in original_text:
+        if(boyer_moore.find(file['content'].lower(), w.lower())) != -1:
+            page_rang+=1
+    file['rang'] = page_rang
 
- 
-def generate_rang(file, text, original_text):
+def generate_rang_result(file, text, snippet):
     rang = 0
 
     for word in text:
@@ -98,14 +103,9 @@ def generate_rang(file, text, original_text):
 
         rang += len(matches)
 
-    word_in_text = []
-    
-    for w in original_text:
-        if(boyer_moore.find(file['content'].lower(), w.lower())) != -1:
-            word_in_text.append(w)
-
-    if(len(word_in_text)==len(original_text)):
-        rang*=2 
+    for word in text:
+        if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
+            rang+=1
 
     return rang
 

@@ -10,7 +10,8 @@ def pdf_to_hashmap():
         page_text = page.get_text()
         hashmap[page_num + 1] = {
             'content':page_text,
-            'page_number':page_num + 1
+            'page_number':page_num + 1,
+            'rang':0 
         }
     
     return hashmap
