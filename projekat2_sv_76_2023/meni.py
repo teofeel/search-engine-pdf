@@ -1,6 +1,7 @@
 import sys
+import algorithm
 
-def meni():
+def meni(files):
     while True:
         print("#"*20)
         print("1. Find in page")
@@ -12,7 +13,7 @@ def meni():
             continue 
         
         if int(inp)==1:
-            user_text_input()
+            user_text_input(files)
         
         elif int(inp) == 2:
             break
@@ -20,7 +21,7 @@ def meni():
         else: continue
 
 
-def user_text_input():
+def user_text_input(files):
     while True:
         print("#"*20)
         print('Input your text in "" to use it as a one expression')
@@ -28,9 +29,9 @@ def user_text_input():
         print('Input <# to go back')
 
         text = input('>>> ')
-
-
-
         if text == '<#':
             return
+        algorithm.search_files(files, text)
+
+        
         
