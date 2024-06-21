@@ -1,5 +1,5 @@
 import utils
-import meni
+import interface.meni as meni
 
 
 if __name__ == '__main__':
