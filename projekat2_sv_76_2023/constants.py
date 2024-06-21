@@ -1,0 +1,1 @@
+PAGE_OFFSET = 23
