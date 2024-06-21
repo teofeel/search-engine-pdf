@@ -31,6 +31,7 @@ def user_text_input(files):
         text = input('>>> ')
         if text == '<#':
             return
+        
         algorithm.get_results(files, text)
 
         

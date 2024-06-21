@@ -1,5 +1,0 @@
-Contents                                xix
-         A Character Strings in Python 721
-         B Useful Mathematical Facts   725
-         Bibliography                  732
-         Index                         737

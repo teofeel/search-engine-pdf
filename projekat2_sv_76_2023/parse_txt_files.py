@@ -14,7 +14,7 @@ def read_results_from_files(root):
             try:
                 page_number = int(content[:content.index('\n')].split()[0])
             except:
-                page_number = None
+                page_number = 0
         index = filename.split(".")[0]
         result[index] = {'index': index,
                          'page_number': page_number,
@@ -37,7 +37,7 @@ def print_dict(dict):
 
 def convert_dict_to_pdf(root):
     filenames = os.listdir(root)
-    print(filenames)
+    
 
     output = aw.Document()
     output.remove_all_children()
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     out_path = 'Data Structures and Algorithms in Python'
     results = read_results_from_files(out_path)
 
-    print_dict(results)
+    
