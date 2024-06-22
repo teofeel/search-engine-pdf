@@ -3,6 +3,7 @@ import algorithms.merge_sort as merge_sort
 import algorithms.boyer_moore as boyer_moore
 import itertools
 from constants import PAGE_OFFSET
+from prettytable import PrettyTable, ALL
         
 def extract_words(graph_page, text, results, num_of_result):
     for word in text:
@@ -160,16 +161,26 @@ def dfs_get_results_test(graph, text, results):
 
     dfs(1, num_of_result)
 
+def paginization():
+    pass
 
+def print_results(results):
+    table = PrettyTable()
+    
+    table.field_names = ['Number of Page', 'Number of Result', 'Content']
+    table.hrules = ALL
+
+    for res in results:
+        table.add_row([res['page_number'],res['num_result'],res['content']])
+        
+    print(table)
+    
 def get_results(graph,text):
     results = []
     
     dfs_get_results_test(graph, text, results)
-    
     sort(results)
+    print_results(results)
     
-    for res in results:
-        print('#'*10)
-        print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
     
