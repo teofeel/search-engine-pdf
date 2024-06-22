@@ -5,30 +5,23 @@ import re
 from constants import PAGE_OFFSET
 from entities import Graph
 
-def pdf_to_hashmap():
+def pdf_to_graph():
     pdf_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
 
-    hashmap = {}
+    graph = Graph.Graph()
+
     for page_num in range(len(pdf_doc)):
         page = pdf_doc.load_page(page_num)
         page_text = page.get_text()
 
-        #page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0, min(page_num+2, len(pdf_doc)))
-        
-        hashmap[page_num + 1] = {
-            'content':page_text,
-            'page_number':page_num + 1,
-            'trie_structure': Trie().insert_words_trie(page_text),
-            'page_connected': []
-        }
+        page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0, min(page_num+2, len(pdf_doc)))
+        graph.add_page(page)
+        graph.add_next_page(page.page_id, page.next_page)
+
+    create_page_links(graph)
     
-    create_page_links(hashmap)
 
-    graph = convert_hashmap_to_graph(hashmap)
-
-    #graph.display()
-
-    return hashmap, graph
+    return graph
 
 
 def convert_hashmap_to_graph(hashmap):
@@ -44,21 +37,20 @@ def convert_hashmap_to_graph(hashmap):
         graph.add_page(page)
 
         for connected_page in page_details['page_connected']:
-            graph.add_edge(page_id, connected_page, page.next_page)
+            graph.add_edge(page_id, connected_page)
 
         graph.add_next_page(page_id, page.next_page)
 
     return graph
 
-def create_page_links(files):
-    for file in files:
-        text = files[file]['content']
+def create_page_links(graph):
+    for page in graph.pages:
+        text = graph.pages[page].content
 
         page_links = extract_page_link(text)
 
-        for link in page_links:
-
-            files[file]['page_connected'].append(link+PAGE_OFFSET)
+        for connected_page in page_links:
+            graph.add_edge(graph.pages[page].page_id, connected_page+PAGE_OFFSET)
 
 
 def extract_page_link(text):

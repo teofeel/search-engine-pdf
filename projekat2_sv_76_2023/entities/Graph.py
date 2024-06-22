@@ -20,7 +20,7 @@ class Graph:
         if page.page_id not in self.pages:
             self.pages[page.page_id] = page
 
-    def add_edge(self, start_page_id, end_page_id, next_page):
+    def add_edge(self, start_page_id, end_page_id):
         if start_page_id in self.pages and end_page_id in self.pages:
             self.pages[start_page_id].outgoing_edges.append(end_page_id)
             self.pages[end_page_id].incoming_edges.append(start_page_id)
