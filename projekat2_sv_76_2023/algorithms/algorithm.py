@@ -138,7 +138,7 @@ def generate_rang_result(graph_page, text, snippet, phrase):
     return rang
 
 def sort(results):
-    merge_sort.sort(results,0,len(results)-1)
+    merge_sort.sort(results)
     
         
 def dfs_get_results_test(graph, text, results):
@@ -169,26 +169,15 @@ def dfs_get_results_test(graph, text, results):
 
     dfs(1, num_of_result)
 
-def paginization():
-    pass
 
-def print_results(results):
-    table = PrettyTable()
-    
-    table.field_names = ['Number of Page', 'Number of Result', 'Content']
-    table.hrules = ALL
-
-    for res in results:
-        table.add_row([res['page_number'],res['num_result'],res['content']])
-
-    print(table)
     
 def get_results(graph,text):
     results = []
     
     dfs_get_results_test(graph, text, results)
     sort(results)
-    print_results(results)
+
+    return results
     
 
     
