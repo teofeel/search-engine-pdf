@@ -9,7 +9,6 @@ class PageNode:
         self.page_rank = page_rank
         self.next_page = next_page
 
-
 class Graph:
     def __init__(self):
         self.vertexes = {}
@@ -38,7 +37,6 @@ class Graph:
                 arr.append(edge[0])
     
         return arr
-
 
     def add_next_page(self, start_page_id, end_page_id):
         if start_page_id in self.vertexes and end_page_id in self.vertexes:
