@@ -74,21 +74,14 @@ def parse_text(text):
     if text[0]=='"' and text[len(text)-1]=='"':
         return text[1:len(text)-1], True
     
-    return text.split(' '), False
+    text_arr = text.split(' ')
+    new_arr = []
+    for i in text_arr:
+        if not(i == '' or i==' ' or i=='\\n'):
+            new_arr.append(i)
 
+    return new_arr, False
 
-def get_results(files, text):
-    results = []
-    #search_files(files,text,results)
-    files.dfs_traversal(1,text,results)
-
-    print(results)
-
-    sort(results)
-
-    for res in results:
-        print('#'*10)
-        print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
 def generate_page_rank(files, file, original_text, phrase):
     page_rang = 0
@@ -133,9 +126,16 @@ def generate_rang_result(file, text, snippet):
 def sort(results):
     merge_sort.sort(results,0,len(results)-1)
     
-        
+def get_results(files, text):
+    results = []
 
-    
+    files.dfs_get_results(1,text,results)
+
+    sort(results)
+
+    for res in results:
+        print('#'*10)
+        print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
 
 

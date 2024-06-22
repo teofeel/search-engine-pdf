@@ -1,5 +1,7 @@
 import entities.Trie as Trie
 from algorithms import algorithm
+import re
+from constants import PAGE_OFFSET
 
 class PageNode:
     def __init__(self, page_number, content, rang, trie, next_page):
@@ -48,7 +50,7 @@ class PageNode:
 
     @page_connected.setter
     def page_connected(self, value):
-        self._page_connecteda.append(value)
+        self._page_connected.append(value)
 
     @next_page.setter
     def next_page(self, value):
@@ -75,7 +77,7 @@ class Graph:
             return self.pages[page_number].content
         return None
 
-    def dfs_traversal(self, start_page_num, text, results):
+    def dfs_get_results(self, start_page_num, text, results):
         visited = set()
         num_of_result=0
 
@@ -102,6 +104,48 @@ class Graph:
 
         dfs(start_page_num,num_of_result)
 
+    def dfs_create_page_links(self, start_page_num):
+        def extract_page_link(text):
+            patterns = [
+                r'see page (\d+)',
+                r'on page (\d+)',
+                r'see pages (\d+) and (\d+)',
+                r'on pages (\d+) and (\d+)',
+                r'see page (\d+) and (\d+)'
+            ]
+
+            page_links = []
+            for pattern in patterns:
+                matches = re.findall(pattern, text, re.IGNORECASE)
+
+                for match in matches:
+                    if(isinstance(match, tuple)):
+                        page_links.extend(match)
+                    else:
+                        page_links.append(match)
+
+            try:
+                return list(map(int, page_links))
+            except:
+                return []
+        visited = set()
+
+        def dfs(page_num):
+            if page_num in visited:
+                return
+            visited.add(page_num)
+
+            text = self.pages[page_num].content
+
+            page_links = extract_page_link(text)
+
+            for link in page_links:
+                self.pages[link+PAGE_OFFSET].page_connected = link
+
+            dfs(self.pages[page_num].next_page)
+
+        dfs(start_page_num)
+        
     
 
     
