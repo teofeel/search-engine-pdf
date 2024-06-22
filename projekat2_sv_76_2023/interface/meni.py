@@ -24,7 +24,7 @@ def meni(files):
 def user_text_input(files):
     while True:
         print("#"*20)
-        print('Input your text in "" to use it as a one expression')
+        print('Input your text in "" to use it as phrase')#print('Input your text in "" to use it as a one expression')
         print('Input your text without anything added to use it as multiple expressions')
         print('Input <# to go back')
 
