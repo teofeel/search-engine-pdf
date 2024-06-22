@@ -1,6 +1,7 @@
 import json
 import fitz
 from entities.Trie import Trie
+import re
 
 def pdf_to_hashmap():
     pdf_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
@@ -18,6 +19,9 @@ def pdf_to_hashmap():
     
     return hashmap
 
+def extract_page_links(text):
+
+    pass
 
 def load_files():
     pass  
