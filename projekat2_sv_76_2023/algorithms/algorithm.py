@@ -127,10 +127,11 @@ def sort(results):
     merge_sort.sort(results,0,len(results)-1)
     
         
-def dfs_get_results(graph, text, results):
+def dfs_get_results_test(graph, text, results):
     visited = set()
     num_of_result = 0 
     text,phrase = parse_text(text)
+
     def dfs(page_num, num_of_result):
         if page_num in visited:
             return
@@ -153,11 +154,13 @@ def dfs_get_results(graph, text, results):
             dfs(page, num_of_result)
 
     dfs(1, num_of_result)
-    
+
+
 def get_results(graph,text):
     results = []
     
-    dfs_get_results(graph, text, results)
+    
+    graph.dfs()
     
     sort(results)
     

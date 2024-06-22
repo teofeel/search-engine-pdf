@@ -3,53 +3,58 @@ import fitz
 from entities.Trie import Trie
 import re
 from constants import PAGE_OFFSET
+from entities import GraphV1
 from entities import Graph
+
 
 def pdf_to_graph():
     pdf_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
 
-    graph = Graph.Graph()
-
+    graph = Graph.Graph(directed=True)
+    hashmap = {}
     for page_num in range(len(pdf_doc)):
         page = pdf_doc.load_page(page_num)
         page_text = page.get_text()
 
-        page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0, min(page_num+2, len(pdf_doc)))
-        graph.add_page(page)
-        graph.add_next_page(page.page_id, page.next_page)
+        hashmap[page_num+1] = {
+            'page_id': page_num+1,
+            'content': page_text,
+            'trie': Trie().insert_words_trie(page_text),
+            'connections': [],
+            'next': min(page_num+2, len(pdf_doc))
+        }
 
-    create_page_links(graph)
-    
+    graph, vertex_map = convert_hashmap_to_graph(hashmap) 
+    #graph.display()
 
     return graph
-
 
 def convert_hashmap_to_graph(hashmap):
-    graph = Graph.Graph()
-    for page_id, page_details in hashmap.items():
-        page = Graph.PageNode(
-            page_id=page_details['page_number'],
-            content=page_details['content'], 
-            trie_structure = Trie().insert_words_trie(page_details['content']),
-            page_rank=0,
-            next_page = min(page_details['page_number']+1, len(hashmap))
-        )
-        graph.add_page(page)
+    graph = Graph.Graph(directed=True)
+    vertex_map = {}
 
-        for connected_page in page_details['page_connected']:
-            graph.add_edge(page_id, connected_page)
+    for i in hashmap:
+        vertex_map[i] = graph.insert_vertex(hashmap[i]['page_id'], hashmap[i]['content'], hashmap[i]['trie'], 0)
+    
+    for i in hashmap:
+        graph.set_next_page(vertex_map[i], vertex_map[hashmap[i]['next']])
 
-        graph.add_next_page(page_id, page.next_page)
+        page_links = extract_page_link(hashmap[i]['content'])
 
-    return graph
+        for link in page_links:
+            graph.insert_edge(vertex_map[i], vertex_map[link+PAGE_OFFSET])
+    
+    return graph, vertex_map
+
 
 def create_page_links(graph):
-    for page in graph.pages:
-        text = graph.pages[page].content
+    for page in graph.vertices():
+        text = page.content
 
         page_links = extract_page_link(text)
 
         for connected_page in page_links:
+            graph.insert_edge(page, graph.get)
             graph.add_edge(graph.pages[page].page_id, connected_page+PAGE_OFFSET)
 
 
