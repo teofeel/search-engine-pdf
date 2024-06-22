@@ -3,7 +3,6 @@ import fitz
 from entities.Trie import Trie
 import re
 from constants import PAGE_OFFSET
-from entities import GraphV1
 from entities import Graph
 import pickle
 
