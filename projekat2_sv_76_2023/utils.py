@@ -10,52 +10,50 @@ from entities import Graph
 def pdf_to_graph():
     pdf_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
 
-    graph = Graph.Graph(directed=True)
-    hashmap = {}
+    graph = Graph.Graph()
+
     for page_num in range(len(pdf_doc)):
         page = pdf_doc.load_page(page_num)
         page_text = page.get_text()
 
-        hashmap[page_num+1] = {
-            'page_id': page_num+1,
-            'content': page_text,
-            'trie': Trie().insert_words_trie(page_text),
-            'connections': [],
-            'next': min(page_num+2, len(pdf_doc))
-        }
+        page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0, min(page_num+2, len(pdf_doc)))
+        graph.add_page(page)
+        graph.add_next_page(page.page_id, page.next_page)
 
-    graph, vertex_map = convert_hashmap_to_graph(hashmap) 
+    create_page_links(graph)
+    
     #graph.display()
 
     return graph
 
+
 def convert_hashmap_to_graph(hashmap):
-    graph = Graph.Graph(directed=True)
-    vertex_map = {}
+    graph = Graph.Graph()
+    for page_id, page_details in hashmap.items():
+        page = Graph.PageNode(
+            page_id=page_details['page_number'],
+            content=page_details['content'], 
+            trie_structure = Trie().insert_words_trie(page_details['content']),
+            page_rank=0,
+            next_page = min(page_details['page_number']+1, len(hashmap))
+        )
+        graph.add_page(page)
 
-    for i in hashmap:
-        vertex_map[i] = graph.insert_vertex(hashmap[i]['page_id'], hashmap[i]['content'], hashmap[i]['trie'], 0)
-    
-    for i in hashmap:
-        graph.set_next_page(vertex_map[i], vertex_map[hashmap[i]['next']])
+        for connected_page in page_details['page_connected']:
+            graph.add_edge(page_id, connected_page)
 
-        page_links = extract_page_link(hashmap[i]['content'])
+        graph.add_next_page(page_id, page.next_page)
 
-        for link in page_links:
-            graph.insert_edge(vertex_map[i], vertex_map[link+PAGE_OFFSET])
-    
-    return graph, vertex_map
-
+    return graph
 
 def create_page_links(graph):
-    for page in graph.vertices():
-        text = page.content
+    for page in graph.vertexes:
+        text = graph.vertexes[page].content
 
         page_links = extract_page_link(text)
 
         for connected_page in page_links:
-            graph.insert_edge(page, graph.get)
-            graph.add_edge(graph.pages[page].page_id, connected_page+PAGE_OFFSET)
+            graph.add_edge(page, connected_page+PAGE_OFFSET)
 
 
 def extract_page_link(text):
