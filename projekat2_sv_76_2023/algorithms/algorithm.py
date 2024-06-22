@@ -4,27 +4,10 @@ import algorithms.boyer_moore as boyer_moore
 import itertools
 from constants import PAGE_OFFSET
 
-def search_files(files,text,results):
-    num_of_result = 0
-
-    text, phrase = parse_text(text)
-
-    for file in files:
-        if(not phrase):
-            generate_page_rank(files, files[file], text, phrase) 
-            num_of_result = extract_words(files[file], text, results, num_of_result)
-            continue
-        
-        if boyer_moore.find(files[file]['content'].lower(), text) == -1:  
-            continue
-
-        generate_page_rank(files, files[file], text, phrase)
-        num_of_result = extract_phrase(files[file], text, results, num_of_result)
-        
 
 def extract_words(file, text, results, num_of_result):
     for word in text:
-        snippets = file['trie_structure'].search_and_extract_snippets(file['content'], word)
+        snippets = file.trie_structure.search_and_extract_snippets(file.content, word)
         color_start = "\033[31m"
         color_end = "\033[0m"
 
@@ -38,7 +21,7 @@ def extract_words(file, text, results, num_of_result):
             num_of_result+=1
             results.append({
                 'num_result':num_of_result,
-                'page_number':file['page_number'],
+                'page_number':file.page_number,
                 'content': colored_snippet,
                 'original_search': word,
                 'rang': generate_rang_result(file, text, snippet) 
@@ -47,8 +30,8 @@ def extract_words(file, text, results, num_of_result):
 
 
 def extract_phrase(file, word, results, num_of_result):
-    pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # rf'\b{re.escape(word)}\b'
-    matches = list(pattern.finditer(file['content']))
+    pattern = re.compile(re.escape(word), re.IGNORECASE) # rf'\b{re.escape(word)}\b'
+    matches = list(pattern.finditer(file.content))
 
     for match in matches:
         color_start = "\033[31m"
@@ -56,30 +39,30 @@ def extract_phrase(file, word, results, num_of_result):
 
         i = match.start()
         while i>0:
-            if file['content'][i]=='.' or file['content'][i]=='\n':
+            if file.content[i]=='.' or file.content[i]=='\n':
                 break
             i-=1
         start = max(i, 0)
 
         i = match.end()
-        while i<len(file['content']):
-            if file['content'][i]=='.'  or file['content'][i]=='\n':
+        while i<len(file.content):
+            if file.content[i]=='.'  or file.content[i]=='\n':
                 break
             i+=1
-        end = min(i, len(file['content']))
+        end = min(i, len(file.content))
 
-        snippet = file['content'][start:end]
+        snippet = file.content[start:end]
 
         colored_snippet = snippet
 
-        pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # re.escape(word)
+        pattern = re.compile(re.escape(word), re.IGNORECASE) # re.escape(word)
         colored_snippet = pattern.sub(f"{color_start}{word}{color_end}", colored_snippet) 
 
         num_of_result+=1
 
         results.append({
             'num_result':num_of_result,
-            'page_number':file['page_number'],
+            'page_number':file.page_number,
             'content': colored_snippet,
             'original_search': word,
             'rang': generate_rang_result(file, [word], snippet) 
@@ -96,7 +79,10 @@ def parse_text(text):
 
 def get_results(files, text):
     results = []
-    search_files(files,text,results)
+    #search_files(files,text,results)
+    files.dfs_traversal(1,text,results)
+
+    print(results)
 
     sort(results)
 
@@ -108,33 +94,33 @@ def generate_page_rank(files, file, original_text, phrase):
     page_rang = 0
 
     for w in original_text:
-        if not phrase and file['trie_structure'].search(w) != []:
+        if not phrase and file.trie_structure.search(w) != []:
             page_rang+=1
-        if phrase and boyer_moore.find(file['content'].lower(), w.lower()) != -1:
+        if phrase and boyer_moore.find(file.content.lower(), w.lower()) != -1:
             page_rang+=1
 
-    for page_link in file['page_connected']:
+    for page_link in file.page_connected:
         page_rang +=1
         page_rang += get_rang_linked_page(files[page_link], original_text, phrase)
 
-    file['rang'] = page_rang
+    file.rang = page_rang
 
 def get_rang_linked_page(file, text, phrase):
     rang = 0
     for word in text:
-        if not phrase and file['trie_structure'].search(word) != []:
+        if not phrase and file.trie_structure.search(word) != []:
             rang+=1
-        if phrase and boyer_moore.find(file['content'].lower(), word.lower()) != -1:
+        if phrase and boyer_moore.find(file.content.lower(), word.lower()) != -1:
             rang+=1
 
     return rang
 
 def generate_rang_result(file, text, snippet):
-    rang = file['rang']
+    rang = file.rang
 
     for word in text:
         pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # re.escape(word)
-        matches = list(pattern.finditer(file['content']))
+        matches = list(pattern.finditer(file.content))
 
         rang += len(matches)
 
