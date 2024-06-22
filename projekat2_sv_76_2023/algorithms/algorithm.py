@@ -10,18 +10,19 @@ def search_files(files,text,results):
     text, phrase = parse_text(text)
 
     for file in files:
-        if(not phrase): 
-            num_of_result = search_words_seperated(files[file], text, results, num_of_result)
-            generate_page_rank(files[file], text)
+        if(not phrase):
+            generate_page_rank(files, files[file], text, phrase) 
+            num_of_result = extract_words(files[file], text, results, num_of_result)
             continue
         
         if boyer_moore.find(files[file]['content'].lower(), text) == -1:  
             continue
 
-        num_of_result = extract_phrase_from_file(files[file], text, results, num_of_result)
-        generate_page_rank(files[file], text)
+        generate_page_rank(files, files[file], text, phrase)
+        num_of_result = extract_phrase(files[file], text, results, num_of_result)
+        
 
-def search_words_seperated(file, text, results, num_of_result):
+def extract_words(file, text, results, num_of_result):
     for word in text:
         snippets = file['trie_structure'].search_and_extract_snippets(file['content'], word)
         color_start = "\033[31m"
@@ -45,7 +46,7 @@ def search_words_seperated(file, text, results, num_of_result):
     return num_of_result
 
 
-def extract_phrase_from_file(file, word, results, num_of_result):
+def extract_phrase(file, word, results, num_of_result):
     pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # rf'\b{re.escape(word)}\b'
     matches = list(pattern.finditer(file['content']))
 
@@ -103,15 +104,33 @@ def get_results(files, text):
         print('#'*10)
         print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
-def generate_page_rank(file, original_text):
+def generate_page_rank(files, file, original_text, phrase):
     page_rang = 0
+
     for w in original_text:
-        if(boyer_moore.find(file['content'].lower(), w.lower())) != -1:
+        if not phrase and file['trie_structure'].search(w) != []:
             page_rang+=1
+        if phrase and boyer_moore.find(file['content'].lower(), w.lower()) != -1:
+            page_rang+=1
+
+    for page_link in file['page_connected']:
+        page_rang +=1
+        page_rang += get_rang_linked_page(files[page_link], original_text, phrase)
+
     file['rang'] = page_rang
 
-def generate_rang_result(file, text, snippet):
+def get_rang_linked_page(file, text, phrase):
     rang = 0
+    for word in text:
+        if not phrase and file['trie_structure'].search(word) != []:
+            rang+=1
+        if phrase and boyer_moore.find(file['content'].lower(), word.lower()) != -1:
+            rang+=1
+
+    return rang
+
+def generate_rang_result(file, text, snippet):
+    rang = file['rang']
 
     for word in text:
         pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # re.escape(word)
