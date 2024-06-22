@@ -5,7 +5,7 @@ import re
 from constants import PAGE_OFFSET
 from entities import GraphV1
 from entities import Graph
-
+import pickle
 
 def pdf_to_graph():
     pdf_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
@@ -83,7 +83,18 @@ def extract_page_link(text):
         
 
 def load_files():
-    pass  
+    try:
+        with open('data', 'rb') as file:
+            graph = pickle.load(file)
+        return graph
+    except:
+        return False
 
-def save_files():
-    pass
+def save_files(graph):
+    try:
+        with open('data', 'wb') as file:
+            pickle.dump(graph, file)
+    except:
+        return False
+        
+    

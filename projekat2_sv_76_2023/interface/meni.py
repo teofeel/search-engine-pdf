@@ -1,6 +1,6 @@
 import sys
 import algorithms.algorithm as algorithm
-
+from utils import save_files, load_files
 def meni(graph):
     while True:
         print("#"*20)
@@ -16,6 +16,7 @@ def meni(graph):
             user_text_input(graph)
         
         elif int(inp) == 2:
+            save_files(graph)
             break
 
         else: continue
