@@ -24,13 +24,13 @@ def extract_words(graph_page, text, results, num_of_result):
                 'page_number':graph_page.page_id,
                 'content': colored_snippet,
                 'original_search': word,
-                'rang': generate_rang_result(graph_page, text, snippet) 
+                'rang': generate_rang_result(graph_page, text, snippet, False) 
             })
     return num_of_result
 
 
 def extract_phrase(graph_page, word, results, num_of_result):
-    pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # rf'\b{re.escape(word)}\b'
+    pattern = re.compile(re.escape(word), re.IGNORECASE) # rf'\b{re.escape(word)}\b'
     matches = list(pattern.finditer(graph_page.content))
 
     for match in matches:
@@ -40,6 +40,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
         i = match.start()
         while i>0:
             if graph_page.content[i]=='.' or graph_page.content[i]=='\n':
+                i+=1
                 break
             i-=1
         start = max(i, 0)
@@ -47,6 +48,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
         i = match.end()
         while i<len(graph_page.content):
             if graph_page.content[i]=='.'  or graph_page.content[i]=='\n':
+                i-=1
                 break
             i+=1
         end = min(i, len(graph_page.content))
@@ -55,7 +57,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
 
         colored_snippet = snippet
 
-        pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # re.escape(word)
+        pattern = re.compile(re.escape(word), re.IGNORECASE) # re.escape(word)
         colored_snippet = pattern.sub(f"{color_start}{word}{color_end}", colored_snippet) 
 
         num_of_result+=1
@@ -65,7 +67,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
             'page_number':graph_page.page_id,
             'content': colored_snippet,
             'original_search': word,
-            'rang': generate_rang_result(graph_page, [word], snippet) 
+            'rang': generate_rang_result(graph_page, [word], snippet, True) 
         })
 
     return num_of_result
@@ -89,14 +91,17 @@ def parse_text(text):
     return new_text, False, logical_operators
 
 
-def generate_page_rank(graph, id, original_text, logical_operators, phrase):
+def generate_page_rank(graph, id, original_text, phrase):
     page_rang = 0
 
     for w in original_text:
         if not phrase and graph.vertexes[id].trie_structure.search(w) != []: 
             page_rang+=1
         if phrase and boyer_moore.find(graph.vertexes[id].content.lower(), w.lower()) != -1:
-            page_rang+=1
+            pattern = re.compile(re.escape(w), re.IGNORECASE) 
+            matches = list(pattern.finditer(graph.vertexes[id].content))
+            
+            page_rang+=len(matches)
 
     for page_link in graph.get_incoming_edges(id):
         page_rang +=1
@@ -114,13 +119,16 @@ def get_rang_linked_page(graph_page, text, phrase):
 
     return rang
 
-def generate_rang_result(graph_page, text, snippet):
+def generate_rang_result(graph_page, text, snippet, phrase):
     rang = graph_page.page_rank
 
     for word in text:
-        pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) # re.escape(word)
+        if not phrase:
+            pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
+        else:
+            pattern = re.compile(re.escape(word), re.IGNORECASE) 
+            
         matches = list(pattern.finditer(graph_page.content))
-
         rang += len(matches)
 
     for word in text:
@@ -147,13 +155,13 @@ def dfs_get_results_test(graph, text, results):
         next_pages.append(graph.vertexes[page_num].next_page)
         
         if phrase==False and graph.vertexes[page_num].trie_structure.search_combination(text, logical_operators):
-            generate_page_rank(graph, page_num, text, logical_operators, phrase) 
+            generate_page_rank(graph, page_num, text, phrase) 
             num_of_result = extract_words(graph.vertexes[page_num], text, results, num_of_result)
             for page in next_pages:
                 dfs(page, num_of_result)
     
-        elif phrase and boyer_moore.find(graph.vertexes[page_num].content.lower(), text) != -1:  
-            generate_page_rank(graph, page_num, text, logical_operators, phrase) 
+        elif phrase and boyer_moore.find(graph.vertexes[page_num].content.lower(), text.lower()) != -1:  
+            generate_page_rank(graph, page_num, [text], phrase) 
             num_of_result = extract_phrase(graph.vertexes[page_num], text, results, num_of_result)
 
         for page in next_pages:
@@ -172,7 +180,7 @@ def print_results(results):
 
     for res in results:
         table.add_row([res['page_number'],res['num_result'],res['content']])
-        
+
     print(table)
     
 def get_results(graph,text):
