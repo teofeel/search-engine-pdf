@@ -1,5 +1,5 @@
 import re
-
+import copy
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -13,18 +13,18 @@ class Trie:
     def insert(self, word, position):
         node = self.root
         for char in word:
-            if char not in node.children:
-                node.children[char] = TrieNode()
-            node = node.children[char]
+            if char.lower() not in node.children:
+                node.children[char.lower()] = TrieNode()
+            node = node.children[char.lower()]
         node.is_end_of_word = True
         node.positions.append(position)
 
     def search(self, word):
         node = self.root
         for char in word:
-            if char not in node.children:
+            if char.lower() not in node.children:
                 return []
-            node = node.children[char]
+            node = node.children[char.lower()]
             
         return node.positions if node.is_end_of_word else []
 
@@ -65,3 +65,23 @@ class Trie:
         positions = self.search(word)
         snippets = [self.get_snippet(text, pos) for pos in positions]
         return snippets
+    
+    def search_combination(self, text, logical_operators):
+        result = self.search(text[0])!=[]
+        operators = copy.deepcopy(logical_operators) 
+        if len(operators)==0: return result
+        
+        for i in range(1,len(text)):
+            if len(operators)==0: return result
+            operation = operators.pop(0)
+
+            if operation == 'AND':
+                result = result and self.search(text[i])!=[]
+                
+            elif operation=='OR':
+                result = result or self.search(text[i])!=[]
+                
+            elif operation=='NOT':
+                result = result and self.search(text[i])==[]
+                
+        return result

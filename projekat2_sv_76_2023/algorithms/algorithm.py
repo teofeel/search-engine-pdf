@@ -71,23 +71,28 @@ def extract_phrase(graph_page, word, results, num_of_result):
 
 def parse_text(text):
     if text[0]=='"' and text[len(text)-1]=='"':
-        return text[1:len(text)-1], True
+        return text[1:len(text)-1], True, None
 
 
     text_arr = text.split(' ')
     new_text = []
+    logical_operators = []
     for i in text_arr:
-        if not( i=='' or i==' ' or i=='\\n'):
+        if not( i=='' or i==' ' or i=='\\n') and not(i=='AND' or i=='OR' or i=='NOT'):
             new_text.append(i)
+        
+        if i=='AND' or i=='OR' or i=='NOT':
+            logical_operators.append(i)
 
-    return new_text, False
+    
+    return new_text, False, logical_operators
 
 
-def generate_page_rank(graph, id, original_text, phrase):
+def generate_page_rank(graph, id, original_text, logical_operators, phrase):
     page_rang = 0
 
     for w in original_text:
-        if not phrase and graph.vertexes[id].trie_structure.search(w) != []:
+        if not phrase and graph.vertexes[id].trie_structure.search(w) != []: 
             page_rang+=1
         if phrase and boyer_moore.find(graph.vertexes[id].content.lower(), w.lower()) != -1:
             page_rang+=1
@@ -130,7 +135,7 @@ def sort(results):
 def dfs_get_results_test(graph, text, results):
     visited = set()
     num_of_result = 0 
-    text,phrase = parse_text(text)
+    text, phrase, logical_operators = parse_text(text)
 
     def dfs(page_num, num_of_result):
         if page_num in visited:
@@ -140,14 +145,14 @@ def dfs_get_results_test(graph, text, results):
         next_pages = graph.get_outgoing_edges(page_num)
         next_pages.append(graph.vertexes[page_num].next_page)
         
-        if not phrase:
-            generate_page_rank(graph, page_num, text, phrase) 
+        if phrase==False and graph.vertexes[page_num].trie_structure.search_combination(text, logical_operators):
+            generate_page_rank(graph, page_num, text, logical_operators, phrase) 
             num_of_result = extract_words(graph.vertexes[page_num], text, results, num_of_result)
             for page in next_pages:
                 dfs(page, num_of_result)
     
         elif phrase and boyer_moore.find(graph.vertexes[page_num].content.lower(), text) != -1:  
-            generate_page_rank(graph, page_num, text, phrase) 
+            generate_page_rank(graph, page_num, text, logical_operators, phrase) 
             num_of_result = extract_phrase(graph.vertexes[page_num], text, results, num_of_result)
 
         for page in next_pages:
@@ -167,5 +172,4 @@ def get_results(graph,text):
         print('#'*10)
         print(f"Number of result: {res['num_result']}\nNumber of page: {res['page_number']}\nContent: {res['content']}")
 
-
-
+    
