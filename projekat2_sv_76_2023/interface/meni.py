@@ -1,7 +1,7 @@
 import sys
 import algorithms.algorithm as algorithm
 
-def meni(files):
+def meni(graph):
     while True:
         print("#"*20)
         print("1. Find in page")
@@ -13,7 +13,7 @@ def meni(files):
             continue 
         
         if int(inp)==1:
-            user_text_input(files)
+            user_text_input(graph)
         
         elif int(inp) == 2:
             break
@@ -21,7 +21,7 @@ def meni(files):
         else: continue
 
 
-def user_text_input(files):
+def user_text_input(graph):
     while True:
         print("#"*20)
         print('Input your text in "" to use it as phrase')#print('Input your text in "" to use it as a one expression')
@@ -32,7 +32,7 @@ def user_text_input(files):
         if text == '<#':
             return
         
-        algorithm.get_results(files, text)
+        algorithm.get_results(graph, text)
 
         
         
