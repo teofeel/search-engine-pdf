@@ -1,9 +1,6 @@
 import re
 import algorithms.merge_sort as merge_sort
 import algorithms.boyer_moore as boyer_moore
-import itertools
-from constants import PAGE_OFFSET
-from prettytable import PrettyTable, ALL
 import copy
 
 def extract_words(graph_page, text, results, num_of_result):
@@ -137,20 +134,19 @@ def get_rang_linked_page(graph_page, text, phrase):
 def generate_rang_result(graph_page, text, snippet, phrase):
     rang = graph_page.page_rank
     
-    #for word in text:
-    #    if not phrase:
-    #        pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
-    #    else:
-    #        pattern = re.compile(re.escape(word), re.IGNORECASE) 
-    #        
-    #    matches = list(pattern.finditer(snippet))
-    #    if(len(matches)>0): rang+1
-    #    rang += len(matches)
-
     for word in text:
-        if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
-            rang+=1
+        if not phrase:
+            pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
+        else:
+            pattern = re.compile(re.escape(word), re.IGNORECASE) 
+            
+        matches = list(pattern.finditer(snippet))
+        if(len(matches)>0): rang+1
+        rang += len(matches)
 
+    #for word in text:
+    #    if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
+    #        rang+=1
     return rang
 
 def sort(results):
