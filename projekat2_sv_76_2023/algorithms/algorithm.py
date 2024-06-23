@@ -73,7 +73,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
 
 def parse_text(text):
     if text[0]=='"' or text[len(text)-1]=='"':
-        return text[1:len(text)-1], True, None
+        return text[1:-1], True, None
 
     text_arr = copy.deepcopy(text.split(' '))
     new_text = []
@@ -154,7 +154,7 @@ def dfs_get_results_test(graph, text_original, results):
         
         next_pages = graph.get_outgoing_edges(page_num)
         
-        if phrase==False and graph.vertexes[page_num].trie_structure.search_combination(text, logical_operators):
+        if phrase==False and graph.vertexes[page_num].trie_structure.search_combinations_advanced(text_original):
             generate_page_rank(graph, page_num, text, phrase) 
             num_of_result = extract_words(graph.vertexes[page_num], text, results, num_of_result)
             for page in next_pages:
@@ -232,13 +232,19 @@ def autocomplete(graph, original_text):
 
 def alternative_keywords(graph, text):
     pass
-    
+
+import algorithms.postfix_equation as postfix_equation   
 def get_results(graph,text):
     results = []
     
+
     dfs_get_results_test(graph, text, results)
     sort(results)
 
+    
+
+    #print(graph.vertexes[720].trie_structure.search_combinations_advanced(text))
+    
     return results
     
 
