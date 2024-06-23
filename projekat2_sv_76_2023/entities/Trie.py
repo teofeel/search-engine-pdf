@@ -85,3 +85,35 @@ class Trie:
                 result = result and self.search(text[i])==[]
                 
         return result
+    
+    def find_prefix_node(self, prefix):
+        node = self.root
+
+        for char in prefix:
+            if char.lower() in node.children:
+                node = node.children[char.lower()]
+            else:
+                return None
+            
+        return node
+    
+    def get_words(self, node, prefix):
+        words = []
+
+        if node.is_end_of_word:
+            words.append(prefix)
+
+        for char, child in node.children.items():
+            words.extend(self.get_words(child, prefix + char))
+
+        return words
+    
+    def extract_words_prefix(self, prefix):
+        node = self.find_prefix_node(prefix)
+
+        if not node:
+            return []
+        
+        words = self.get_words(node, prefix)
+
+        return words

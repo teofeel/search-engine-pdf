@@ -34,6 +34,14 @@ class Graph:
     def get_incoming_edges(self, page_id):
         arr = []
         for edge in self.edges:
+            if edge[1]==page_id:
+                arr.append(edge[0])
+    
+        return arr
+    
+    def get_linked_pages_edges(self, page_id):
+        arr = []
+        for edge in self.edges:
             if not edge[2] and edge[1]==page_id:
                 arr.append(edge[0])
     

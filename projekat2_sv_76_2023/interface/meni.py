@@ -34,10 +34,45 @@ def user_text_input(graph):
         if text == '<#':
             return
         
+        text = autocomplete(text, algorithm.autocomplete(graph, text))
+        print(text)
         results = algorithm.get_results(graph, text)
+        
         paginization(results)
 
-        
+def autocomplete(input_text, suggestions):
+    text = input_text
+
+    arr = text.split(' ')
+    text_arr = []
+
+    for i in arr:
+        if not( i=='' or i==' ' or i=='\\n') and not(i=='AND' or i=='OR' or i=='NOT'):
+            text_arr.append(i)
+  
+    for i in range(len(text_arr)):
+        if text_arr[i][len(text_arr[i])-1]=='*' and text_arr[i][:len(text_arr[i])-1] in suggestions:
+            text_arr[i]  = change_word(text_arr[i], suggestions[text_arr[i][:len(text_arr[i])-1]])
+
+    return ' '.join(text_arr)
+
+def change_word(original_word, suggestions):
+    while True:
+        print(f'Do you want to replace word {original_word} with any of the following')
+        i=1
+        for word in suggestions:
+            print(f'{i}. {word}')
+            i+=1
+
+        br = input('>>> ')
+        if not br.isdigit(): continue
+        if int(br)<=0 and int(br)>i: continue
+
+        original_word = suggestions[int(br)-1]
+        return original_word
+
+    pass
+
 def paginization(results):
     total_num=0
     num = 0

@@ -71,7 +71,7 @@ def extract_phrase(graph_page, word, results, num_of_result):
     return num_of_result
 
 def parse_text(text):
-    if text[0]=='"' and text[len(text)-1]=='"':
+    if text[0]=='"' or text[len(text)-1]=='"':
         return text[1:len(text)-1], True, None
 
 
@@ -101,7 +101,7 @@ def generate_page_rank(graph, id, original_text, phrase):
             
             page_rang+=len(matches)
 
-    for page_link in graph.get_incoming_edges(id):
+    for page_link in graph.get_linked_pages_edges(id):
         page_rang +=1
         page_rang += get_rang_linked_page(graph.vertexes[page_link], original_text, phrase)
 
@@ -166,7 +166,74 @@ def dfs_get_results_test(graph, text, results):
 
     dfs(1, num_of_result)
 
+def sort_common_words(words):
+    words_arr = []
 
+    for word in words:
+        words_arr.append((word, words[word]))
+        #print(word, words[word])
+
+    words_arr.sort(key=lambda tup:tup[1], reverse=True)
+
+    sorted_words = []
+    for i in range(3):
+        sorted_words.append(words_arr[i][0])
+
+    
+    return sorted_words
+    
+
+def find_common_words_prefix(graph, prefix):
+    visited = set()
+
+    words = {}
+    
+    def dfs(page_num):
+        if page_num in visited:
+            return
+        visited.add(page_num)
+
+        next_pages = graph.get_outgoing_edges(page_num)
+
+        extracted_words = graph.vertexes[page_num].trie_structure.extract_words_prefix(prefix)
+
+        for word in extracted_words:
+            if not word in words:
+                words[word] = 1
+            elif word in words:
+                words[word] += 1
+
+            #print(words[word])
+
+        for page in next_pages:
+            dfs(page)
+
+    dfs(1)
+
+
+    most_common_words = sort_common_words(words) 
+    
+    return most_common_words    
+
+def autocomplete(graph, text):
+    if text[0]=='"' or text[len(text)-1]=='"':
+        return text
+    
+    text, phrase, logical_operators = parse_text(text)
+    
+    suggestions = {}
+    for word in text:
+        if word[len(word)-1] == '*':
+            #suggestion[word] = find_common_words_prefix(graph, word[:-1])
+            shorten_word = word[:len(word)-1]
+            if not shorten_word in suggestions:
+                suggestions[shorten_word] = find_common_words_prefix(graph, word[:-1])
+            
+        
+    return suggestions
+
+def alternative_keywords(graph, text):
+    pass
     
 def get_results(graph,text):
     results = []
