@@ -189,9 +189,15 @@ def sort_common_words(words):
     words_arr.sort(key=lambda tup:tup[1], reverse=True)
 
     sorted_words = []
-    for i in range(3):
+   
+    i=0 
+    while i<3 and i<len(words_arr):
         sorted_words.append(words_arr[i][0])
-
+        i+=1
+        
+        #if i>len(words_arr)-1:
+        #    break
+    
     return sorted_words
     
 
@@ -219,7 +225,7 @@ def find_common_words_prefix(graph, prefix):
             dfs(page)
 
     dfs(1)
-
+    
     most_common_words = sort_common_words(words) 
     
     return most_common_words    
