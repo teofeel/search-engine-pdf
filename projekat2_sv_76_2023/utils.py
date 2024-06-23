@@ -15,9 +15,9 @@ def pdf_to_graph():
         page = pdf_doc.load_page(page_num)
         page_text = page.get_text()
 
-        page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0, min(page_num+2, len(pdf_doc)))
+        page = Graph.PageNode(page_num+1, page_text, Trie().insert_words_trie(page_text), 0)
         graph.add_page(page)
-        graph.add_next_page(page.page_id, page.next_page)
+        graph.add_next_page(page.page_id, min(page_num+2, len(pdf_doc)))
 
     create_page_links(graph)
     

@@ -40,7 +40,6 @@ def extract_phrase(graph_page, word, results, num_of_result):
         i = match.start()
         while i>0:
             if graph_page.content[i]=='.' or graph_page.content[i]=='\n':
-                i+=1
                 break
             i-=1
         start = max(i, 0)
@@ -48,7 +47,6 @@ def extract_phrase(graph_page, word, results, num_of_result):
         i = match.end()
         while i<len(graph_page.content):
             if graph_page.content[i]=='.'  or graph_page.content[i]=='\n':
-                i-=1
                 break
             i+=1
         end = min(i, len(graph_page.content))
@@ -152,7 +150,6 @@ def dfs_get_results_test(graph, text, results):
         visited.add(page_num)
         
         next_pages = graph.get_outgoing_edges(page_num)
-        next_pages.append(graph.vertexes[page_num].next_page)
         
         if phrase==False and graph.vertexes[page_num].trie_structure.search_combination(text, logical_operators):
             generate_page_rank(graph, page_num, text, phrase) 
