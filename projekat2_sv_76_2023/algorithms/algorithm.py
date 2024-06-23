@@ -4,7 +4,8 @@ import algorithms.boyer_moore as boyer_moore
 import itertools
 from constants import PAGE_OFFSET
 from prettytable import PrettyTable, ALL
-        
+import copy
+
 def extract_words(graph_page, text, results, num_of_result):
     for word in text:
         snippets = graph_page.trie_structure.search_and_extract_snippets(graph_page.content, word)
@@ -74,18 +75,20 @@ def parse_text(text):
     if text[0]=='"' or text[len(text)-1]=='"':
         return text[1:len(text)-1], True, None
 
-
-    text_arr = text.split(' ')
+    text_arr = copy.deepcopy(text.split(' '))
     new_text = []
     logical_operators = []
+    
     for i in text_arr:
-        if not( i=='' or i==' ' or i=='\\n') and not(i=='AND' or i=='OR' or i=='NOT'):
-            new_text.append(i)
+        if not( i=='' or i==' ' or i=='\\n') and not (i=='AND' or i=='OR' or i=='NOT'):
+            word = i
+            new_text.append(word)
         
         if i=='AND' or i=='OR' or i=='NOT':
-            logical_operators.append(i)
+            logical = i
+            logical_operators.append(logical)
 
-    
+
     return new_text, False, logical_operators
 
 
@@ -139,10 +142,10 @@ def sort(results):
     merge_sort.sort(results)
     
         
-def dfs_get_results_test(graph, text, results):
+def dfs_get_results_test(graph, text_original, results):
     visited = set()
     num_of_result = 0 
-    text, phrase, logical_operators = parse_text(text)
+    text, phrase, logical_operators = parse_text(copy.deepcopy(text_original))
 
     def dfs(page_num, num_of_result):
         if page_num in visited:
@@ -210,11 +213,11 @@ def find_common_words_prefix(graph, prefix):
     
     return most_common_words    
 
-def autocomplete(graph, text):
-    if text[0]=='"' or text[len(text)-1]=='"':
-        return text
+def autocomplete(graph, original_text):
+    if original_text[0]=='"' or original_text[len(original_text)-1]=='"':
+        return original_text
     
-    text, phrase, logical_operators = parse_text(text)
+    text, _, _ = parse_text(original_text)
     
     suggestions = {}
     for word in text:
@@ -224,8 +227,7 @@ def autocomplete(graph, text):
 
             if not shorten_word in suggestions:
                 suggestions[shorten_word] = find_common_words_prefix(graph, word[:-1])
-            
-        
+    
     return suggestions
 
 def alternative_keywords(graph, text):

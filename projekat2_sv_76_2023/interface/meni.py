@@ -2,6 +2,8 @@ import sys
 import algorithms.algorithm as algorithm
 from utils import save_files, load_files
 from prettytable import PrettyTable, ALL
+import copy
+
 def meni(graph):
     while True:
         print("#"*20)
@@ -33,9 +35,8 @@ def user_text_input(graph):
         text = input('>>> ')
         if text == '<#':
             return
-        
-        text = autocomplete(text, algorithm.autocomplete(graph, text))
-        
+        text = autocomplete(text, algorithm.autocomplete(graph, copy.deepcopy(text)))
+
         results = algorithm.get_results(graph, text)
 
         print('1. Show all related results')
@@ -74,9 +75,9 @@ def autocomplete(input_text, suggestions):
 
     arr = text.split(' ')
     text_arr = []
-
+    
     for i in arr:
-        if not( i=='' or i==' ' or i=='\\n') and not(i=='AND' or i=='OR' or i=='NOT'):
+        if not( i=='' or i==' ' or i=='\\n'):
             text_arr.append(i)
   
     for i in range(len(text_arr)):
