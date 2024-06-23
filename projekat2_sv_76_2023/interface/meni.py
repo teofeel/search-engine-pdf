@@ -35,9 +35,8 @@ def user_text_input(graph):
             return
         
         text = autocomplete(text, algorithm.autocomplete(graph, text))
-        print(text)
-        results = algorithm.get_results(graph, text)
         
+        results = algorithm.get_results(graph, text)
         paginization(results)
 
 def autocomplete(input_text, suggestions):
@@ -70,8 +69,6 @@ def change_word(original_word, suggestions):
 
         original_word = suggestions[int(br)-1]
         return original_word
-
-    pass
 
 def paginization(results):
     total_num=0

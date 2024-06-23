@@ -129,9 +129,9 @@ def generate_rang_result(graph_page, text, snippet, phrase):
         matches = list(pattern.finditer(graph_page.content))
         rang += len(matches)
 
-    for word in text:
-        if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
-            rang+=1
+    #for word in text:
+    #    if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
+    #        rang+=1
 
     return rang
 
@@ -171,7 +171,6 @@ def sort_common_words(words):
 
     for word in words:
         words_arr.append((word, words[word]))
-        #print(word, words[word])
 
     words_arr.sort(key=lambda tup:tup[1], reverse=True)
 
@@ -179,7 +178,6 @@ def sort_common_words(words):
     for i in range(3):
         sorted_words.append(words_arr[i][0])
 
-    
     return sorted_words
     
 
@@ -203,13 +201,10 @@ def find_common_words_prefix(graph, prefix):
             elif word in words:
                 words[word] += 1
 
-            #print(words[word])
-
         for page in next_pages:
             dfs(page)
 
     dfs(1)
-
 
     most_common_words = sort_common_words(words) 
     
@@ -223,9 +218,10 @@ def autocomplete(graph, text):
     
     suggestions = {}
     for word in text:
+
         if word[len(word)-1] == '*':
-            #suggestion[word] = find_common_words_prefix(graph, word[:-1])
             shorten_word = word[:len(word)-1]
+
             if not shorten_word in suggestions:
                 suggestions[shorten_word] = find_common_words_prefix(graph, word[:-1])
             

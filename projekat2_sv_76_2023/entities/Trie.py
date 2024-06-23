@@ -63,13 +63,17 @@ class Trie:
 
     def search_and_extract_snippets(self,text, word):
         positions = self.search(word)
+
         snippets = [self.get_snippet(text, pos) for pos in positions]
+
         return snippets
     
     def search_combination(self, text, logical_operators):
         result = self.search(text[0])!=[]
+
         operators = copy.deepcopy(logical_operators) 
-        if len(operators)==0: return result
+
+        if len(operators)==0: return True
         
         for i in range(1,len(text)):
             if len(operators)==0: return result
