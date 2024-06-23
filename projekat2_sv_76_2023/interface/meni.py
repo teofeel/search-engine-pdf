@@ -37,8 +37,38 @@ def user_text_input(graph):
         text = autocomplete(text, algorithm.autocomplete(graph, text))
         
         results = algorithm.get_results(graph, text)
-        paginization(results)
 
+        print('1. Show all related results')
+        print('2. Show one result per page')
+        all_results = input('>>> ')
+        if all_results == '<#':
+            return
+        
+        if not all_results.isdigit() or int(all_results)!=2:
+            paginization(results)
+        if all_results.isdigit() and int(all_results)==2:
+            paginization(get_one_result_page(results))
+
+
+def get_one_result_page(results):
+    new_results = []
+
+    for result in results:
+        if len(new_results)==0:
+            new_results.append(result)
+            continue
+
+        insert = True
+        for r in new_results:
+            if r['page_number']==result['page_number']:
+                insert = False
+
+        if insert:
+            new_results.append(result)
+
+    return new_results
+
+    
 def autocomplete(input_text, suggestions):
     text = input_text
 

@@ -69,12 +69,11 @@ class Trie:
         return snippets
     
     def search_combination(self, text, logical_operators):
-        result = self.search(text[0])!=[]
+        if len(logical_operators)==0: return True
 
         operators = copy.deepcopy(logical_operators) 
+        result = self.search(text[0])!=[]
 
-        if len(operators)==0: return True
-        
         for i in range(1,len(text)):
             if len(operators)==0: return result
             operation = operators.pop(0)
