@@ -74,7 +74,9 @@ class Trie:
         postfix = postfix_equation.infix_to_postfix(text)
 
         if not postfix: return False
-        
+        if not ('AND' in postfix and 'OR' in postfix and 'NOT' in postfix):
+            for res in postfix:
+                if self.search(res): return True
         try:
             operations = {'AND', 'OR', 'NOT'}
             operations_arr = []

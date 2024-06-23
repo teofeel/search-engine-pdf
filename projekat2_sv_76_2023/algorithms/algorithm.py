@@ -94,47 +94,62 @@ def parse_text(text):
 
 def generate_page_rank(graph, id, original_text, phrase):
     page_rang = 0
+    num = 0
+    for word in original_text:
+        if not phrase:
+            #snippets = graph.vertexes[id].trie_structure.search_and_extract_snippets(graph.vertexes[id].content, word)
+            found_num = graph.vertexes[id].trie_structure.search(word)
+            if(len(found_num)>0): num+=1
+            page_rang += len(found_num)
 
-    for w in original_text:
-        if not phrase and graph.vertexes[id].trie_structure.search(w) != []: 
-            page_rang+=1
-        if phrase and boyer_moore.find(graph.vertexes[id].content.lower(), w.lower()) != -1:
-            pattern = re.compile(re.escape(w), re.IGNORECASE) 
+        else:
+            pattern = re.compile(re.escape(word), re.IGNORECASE) 
             matches = list(pattern.finditer(graph.vertexes[id].content))
-            
-            page_rang+=len(matches)
+
+            if(len(matches)>0): num+=1
+            page_rang += len(matches)
+
+    page_rang += page_rang * (num/len(original_text))
 
     for page_link in graph.get_linked_pages_edges(id):
         page_rang +=1
         page_rang += get_rang_linked_page(graph.vertexes[page_link], original_text, phrase)
 
-    graph.vertexes[id].rang = page_rang
+    
+    graph.vertexes[id].page_rank = page_rang
 
 def get_rang_linked_page(graph_page, text, phrase):
     rang = 0
     for word in text:
-        if not phrase and graph_page.trie_structure.search(word) != []:
-            rang+=1
-        if phrase and boyer_moore.find(graph_page.content.lower(), word.lower()) != -1:
-            rang+=1
-
+        if not phrase:
+            #pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
+            found_num = graph_page.trie_structure.search(word)
+            if(len(found_num)>0): rang+=1
+            rang += len(found_num)
+        else:
+            pattern = re.compile(re.escape(word), re.IGNORECASE) 
+            
+            matches = list(pattern.finditer(graph_page.content))
+            if(len(matches)>0): rang+1
+            rang += len(matches)
     return rang
 
 def generate_rang_result(graph_page, text, snippet, phrase):
     rang = graph_page.page_rank
+    
+    #for word in text:
+    #    if not phrase:
+    #        pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
+    #    else:
+    #        pattern = re.compile(re.escape(word), re.IGNORECASE) 
+    #        
+    #    matches = list(pattern.finditer(snippet))
+    #    if(len(matches)>0): rang+1
+    #    rang += len(matches)
 
     for word in text:
-        if not phrase:
-            pattern = re.compile(rf'\b{re.escape(word)}\b', re.IGNORECASE) 
-        else:
-            pattern = re.compile(re.escape(word), re.IGNORECASE) 
-            
-        matches = list(pattern.finditer(graph_page.content))
-        rang += len(matches)
-
-    #for word in text:
-    #    if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
-    #        rang+=1
+        if (boyer_moore.find(snippet.lower(), word.lower())) != -1:
+            rang+=1
 
     return rang
 
@@ -157,8 +172,8 @@ def dfs_get_results_test(graph, text_original, results):
         if phrase==False and graph.vertexes[page_num].trie_structure.search_combinations_advanced(text_original):
             generate_page_rank(graph, page_num, text, phrase) 
             num_of_result = extract_words(graph.vertexes[page_num], text, results, num_of_result)
-            for page in next_pages:
-                dfs(page, num_of_result)
+            #for page in next_pages:
+            #    dfs(page, num_of_result)
     
         elif phrase and boyer_moore.find(graph.vertexes[page_num].content.lower(), text.lower()) != -1:  
             generate_page_rank(graph, page_num, [text], phrase) 

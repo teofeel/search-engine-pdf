@@ -140,10 +140,10 @@ def paginization(results):
 def print_results(results):
     table = PrettyTable()
     
-    table.field_names = ['Number of Page', 'Number of Result', 'Content']
+    table.field_names = ['Number of Page', 'Rank','Number of Result', 'Content']
     table.hrules = ALL
 
     for res in results:
-        table.add_row([res['page_number'],res['num_result'],res['content']])
+        table.add_row([res['page_number'],res['rang'],res['num_result'],res['content']])
 
     print(table)
