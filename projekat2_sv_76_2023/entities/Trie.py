@@ -74,6 +74,7 @@ class Trie:
         postfix = postfix_equation.infix_to_postfix(text)
 
         if not postfix: return False
+        
         try:
             operations = {'AND', 'OR', 'NOT'}
             operations_arr = []
@@ -81,7 +82,6 @@ class Trie:
 
             result = True
             #operators.append(postfix.pop(0))
-            
             i=0
 
             while i<len(postfix)-1:

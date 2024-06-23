@@ -240,10 +240,6 @@ def get_results(graph,text):
 
     dfs_get_results_test(graph, text, results)
     sort(results)
-
-    
-
-    #print(graph.vertexes[720].trie_structure.search_combinations_advanced(text))
     
     return results
     

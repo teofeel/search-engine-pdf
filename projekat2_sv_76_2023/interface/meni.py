@@ -3,6 +3,7 @@ import algorithms.algorithm as algorithm
 from utils import save_files, load_files
 from prettytable import PrettyTable, ALL
 import copy
+import utils
 
 def meni(graph):
     while True:
@@ -49,6 +50,14 @@ def user_text_input(graph):
             paginization(results)
         if all_results.isdigit() and int(all_results)==2:
             paginization(get_one_result_page(results))
+
+        print('Do you want to save results (Y/N)?')
+        save_results = input('>>> ')
+        if not save_results.lower()=='y':
+            continue
+        else:
+            utils.save_pages_pdf(graph, get_one_result_page(results)[:10], text)
+
 
 
 def get_one_result_page(results):
@@ -118,7 +127,7 @@ def paginization(results):
             print_results(paginized_arr)
 
             print()
-            print('Da li ocete da predjete na sledecu stranicu? (Y/N)')
+            print('Next page? (Y/N)')
             inp = input('>>> ')
 
             if inp.lower()=='y':

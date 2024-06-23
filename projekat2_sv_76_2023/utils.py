@@ -97,3 +97,19 @@ def save_files(graph):
         return False
         
     
+def save_pages_pdf(graph, results, original_search):
+    new_doc = fitz.open()
+    old_doc = fitz.open('Data Structures and Algorithms in Python.pdf')
+
+    if original_search[0] =='"' or original_search[-1] =='"':
+        path = f'results/{original_search[1:-1]}_phrase.pdf'
+    else:
+        path = f'results/{original_search}.pdf'
+
+    for result in results:
+        new_doc.insert_pdf(old_doc, from_page=result['page_number']+1, to_page=result['page_number']+1)
+    
+
+    new_doc.save(path)
+    new_doc.close()    
+    
