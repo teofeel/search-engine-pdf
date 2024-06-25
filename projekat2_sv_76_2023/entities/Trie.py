@@ -73,59 +73,46 @@ class Trie:
     def search_combinations_advanced(self, text):
         postfix = postfix_equation.infix_to_postfix(text)
 
-        if not postfix: return False
-        if not ('AND' in postfix and 'OR' in postfix and 'NOT' in postfix):
-            for res in postfix:
-                if self.search(res): return True
-        try:
-            operations = {'AND', 'OR', 'NOT'}
-            operations_arr = []
-            operators = []
-
-            result = True
-            #operators.append(postfix.pop(0))
-            i=0
-
-            while i<len(postfix)-1:
-                if not postfix[i] in operations:
-                    operators.append(postfix[i])
-                    i+=1
-                    continue
-
-                while len(operators)>1 and postfix[i] in operations:
-                    operator1 = operators.pop()
-                    operator2 = operators.pop()
-
-                    if postfix[i] == 'AND':
-                        if not isinstance(operator1, (bool)):
-                            result = self.search(operator2)!=[] and self.search(operator1)!=[]
-                        else:
-                            result = self.search(operator2)!=[] and operator1
-                
-                    elif postfix[i]=='OR':
-                        if not isinstance(operator1, (bool)):
-                            result = self.search(operator2)!=[] or self.search(operator1)!=[]
-                        else:
-                            result = self.search(operator2)!=[] or operator1
-
-                    elif postfix[i]=='NOT':
-                        if not isinstance(operator1, (bool)):
-                            result = self.search(operator2)!=[] and not self.search(operator1)!=[]
-                        else:
-                            result = self.search(operator2)!=[] and not operator1
-
-                    #print(result, operator1, operator2, postfix[i], 'lol')
-
-                    operators.append(result)
-                    i+=1    
-
-                #print(result, operator1, operator2, postfix[i], 'l')
-                i+=1
-
-            return result
-        except:
+        if not postfix:
             return False
-        
+
+        if not any(op in postfix for op in ['AND', 'OR', 'NOT']):
+            return any(self.search(term)!=[] for term in postfix)
+
+        try:
+
+            operations = {'AND', 'OR', 'NOT'}
+
+            operand_stack = []
+
+            for token in postfix:
+                if token not in operations:
+                    search_result = self.search(token)
+                    operand_stack.append(search_result)
+                else:
+                    if token == 'NOT':
+                        operand1 = operand_stack.pop()
+                        operand2 = operand_stack.pop()
+                        result = operand2 and not operand1
+                        operand_stack.append(result)
+
+                    elif token == 'AND':
+                        operand1 = operand_stack.pop()
+                        operand2 = operand_stack.pop()
+                        result = operand2 and operand1
+                        operand_stack.append(result)
+                    elif token == 'OR':
+                        operand1 = operand_stack.pop()
+                        operand2 = operand_stack.pop()
+                        result = operand2 or operand1
+                        operand_stack.append(result)
+
+            final_result = operand_stack.pop()
+
+            return final_result
+        except Exception as e:
+            return False
+
 
     def search_combination(self, text, logical_operators):
         operators = copy.deepcopy(logical_operators) 

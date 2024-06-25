@@ -164,12 +164,11 @@ def dfs_get_results_test(graph, text_original, results):
         visited.add(page_num)
         
         next_pages = graph.get_outgoing_edges(page_num)
+        next_pages.append(min(page_num+1, 770))
         
         if phrase==False and graph.vertexes[page_num].trie_structure.search_combinations_advanced(text_original):
             generate_page_rank(graph, page_num, text, phrase) 
             num_of_result = extract_words(graph.vertexes[page_num], text, results, num_of_result)
-            #for page in next_pages:
-            #    dfs(page, num_of_result)
     
         elif phrase and boyer_moore.find(graph.vertexes[page_num].content.lower(), text.lower()) != -1:  
             generate_page_rank(graph, page_num, [text], phrase) 

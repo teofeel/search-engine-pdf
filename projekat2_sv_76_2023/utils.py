@@ -41,7 +41,7 @@ def convert_hashmap_to_graph(hashmap):
         for connected_page in page_details['page_connected']:
             graph.add_edge(page_id, connected_page)
 
-        graph.add_next_page(page_id, page.next_page)
+        #graph.add_next_page(page_id, page.next_page)
 
     return graph
 

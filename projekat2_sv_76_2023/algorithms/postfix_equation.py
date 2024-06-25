@@ -55,6 +55,7 @@ def infix_to_postfix(text):
 
         while operators:
             output.append(operators.pop())
+        
 
         return output
     except:
