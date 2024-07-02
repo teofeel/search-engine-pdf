@@ -31,6 +31,8 @@ def user_text_input(graph):
         print("#"*20)
         print('Input your text in "" to use it as phrase')
         print('Input your text without anything added to use it as multiple expressions')
+        print('To use logical operators AND OR or NOT please put blank space between words and `(` `)` ')
+        print('To use autcomplete use * after your word (example func*)')
         print('Input <# to go back')
 
         text = input('>>> ')

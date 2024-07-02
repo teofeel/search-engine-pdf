@@ -47,6 +47,8 @@ class Graph:
     
         return arr
 
+    def get_vertex(self, num):
+        return self.vertexes[num]
     
 
     def get_next_page(self,page_id):
